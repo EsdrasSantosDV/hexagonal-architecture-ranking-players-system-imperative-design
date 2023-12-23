@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  hexagon-mysql:
+    container_name: hexagon-mysql
+    image: mysql:8.1
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: logistic
+      MYSQL_ROOT_PASSWORD: Waraion91
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  quarkus-app:
+    build:
+      context: ./bootstrap
+      dockerfile: src/main/docker/Dockerfile.jvm
+    image: aplication-esdras
+    ports:
+      - "8080:8080"
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mysql://hexagon-mysql:3306/logistic
+      QUARKUS_DATASOURCE_USERNAME: root
+      QUARKUS_DATASOURCE_PASSWORD: Waraion91
+    depends_on:
+      hexagon-mysql:
+        condition: service_healthy
